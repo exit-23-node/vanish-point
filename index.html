@@ -331,7 +331,8 @@ function typeExitMessage() {
     } else {
       // After message finishes typing, wait 2 seconds then redirect
       setTimeout(() => {
-        window.location.href = "second.html"; // Change this to your next page
+       localStorage.setItem('completedLevelOne', 'true');
+window.location.href = "second.html";
       }, 2000);
     }
   }
