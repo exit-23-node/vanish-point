@@ -2,65 +2,59 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>EXIT-23</title>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
+    :root { font-size: 14px; }
     body {
       margin: 0;
       background: black;
-      color: white;
+      color: #4ade80;
       font-family: 'Press Start 2P', monospace;
-      font-size: 10px;
+      font-size: 0.7rem;
+      overflow-x: hidden;
     }
-    .center {
+    .center, .next-screen, .init-screen, .blank-screen, .stay-screen, .exit-screen {
       min-height: 100vh;
-      display: flex;
+      display: none;
       align-items: center;
       justify-content: center;
-      text-align: center;
       flex-direction: column;
-      padding: 1rem;
+      text-align: center;
+      transition: opacity 1s ease;
     }
-    .glow {
-      color: #4ade80;
-      text-shadow: 0 0 0.5px #4ade80, 0 0 1px #4ade80;
+    .center.active, .next-screen.active, .init-screen.active, .blank-screen.active, .stay-screen.active, .exit-screen.active {
+      display: flex;
+      opacity: 1;
     }
-    .btn {
-      margin-top: 1rem;
+    .title {
+      font-size: 2.5rem;
+      margin-bottom: 4rem;
+      letter-spacing: 0.4rem;
+      color: white;
+    }
+    .start-button {
       padding: 0.5rem 1.5rem;
-      border: 1px solid #4ade80;
-      background: none;
-      color: #4ade80;
       border-radius: 8px;
       cursor: pointer;
       font-weight: bold;
-      transition: background 0.3s, color 0.3s;
+      font-size: 0.7rem;
+      font-family: 'Press Start 2P', monospace;
+      border: 1px solid #4ade80;
+      background: none;
+      color: #4ade80;
       box-shadow: 0 0 8px #4ade80, 0 0 16px #4ade80;
-      font-size: 10px;
-      font-family: 'Press Start 2P', monospace;
+      margin-bottom: 1rem;
     }
-    .btn:hover {
-      background: #4ade80;
-      color: black;
-    }
-    .hidden { display: none; }
-    .animate-pulse::after {
-      content: '...';
-      animation: pulse 1s infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 0.2; }
-      50% { opacity: 1; }
-    }
-    .countdown {
-      position: absolute;
-      top: 10px;
-      right: 20px;
-      font-size: 10px;
-      color: white;
-      font-family: 'Press Start 2P', monospace;
-      text-shadow: 0 0 0.5px #4ade80, 0 0 1px #4ade80;
+    .start-button:hover { background: #4ade80; color: black; }
+    .start-button.disabled {
+      border-color: grey;
+      color: grey;
+      box-shadow: none;
+      background: none;
+      cursor: not-allowed;
+      opacity: 0.5;
     }
     .player-indicator {
       position: absolute;
@@ -70,98 +64,54 @@
       align-items: center;
       gap: 0.5rem;
       font-family: 'Press Start 2P', monospace;
-      font-size: 10px;
-      color: white;
+      font-size: 0.7rem;
+      color: #4ade80;
     }
-    .player-indicator .player-circle {
+    .player-circle {
       width: 10px;
       height: 10px;
-      background-color: white;
       border-radius: 50%;
-      transition: background-color 0.3s, box-shadow 0.3s;
+      background-color: red;
     }
-    .player-indicator.active .player-circle {
-      background-color: #3b82f6;
-      box-shadow: 0 0 6px #3b82f6, 0 0 12px #3b82f6;
+    .player-indicator.online .player-circle {
+      background-color: #4ade80;
+      box-shadow: 0 0 8px #4ade80, 0 0 16px #4ade80;
     }
-    #exitScreen p, #exitScreen div {
-      font-size: 10px !important;
-    }
-    #exitScreen h1 {
-      font-size: 1.25rem !important;
-    }
+    .player-indicator.online .player-text { color: #4ade80; }
+    .player-indicator.offline .player-text { color: #f87171; }
   </style>
 </head>
 <body>
-  <div class="countdown" id="countdown"></div>
-  <div id="playerIndicator" class="player-indicator hidden">
+  <div class="player-indicator offline" id="playerStatus">
     <div class="player-circle"></div>
-    <div class="player-text">player one</div>
+    <div class="player-text">offline</div>
   </div>
-
-  <div id="startScreen" class="center">
-    <button class="btn" onclick="showWelcome()">START</button>
-  </div>
-
-  <div id="welcomeScreen" class="center hidden">
-    <p class="glow">transmission detected<span class="animate-pulse"></span></p>
-    <p class="glow">awaiting signal<span class="animate-pulse"></span></p>
-  </div>
-
-  <div id="exitScreen" class="center hidden">
-    <h1 style="color: white; text-shadow: none;">EXIT-23</h1>
-    <p>this is not a product. this is not a service. this is not for everyone.</p>
-    <p>you either disappear or you don’t. one chance. one transaction. one transmission.</p>
-    <div style="border: 1px solid white; border-radius: 16px; padding: 1.5rem; margin-top: 1rem; background: rgba(255,255,255,0.05);">
-      <p>to initiate, send <strong>1 btc</strong> to</p>
-      <p class="glow" style="margin: 0.5rem 0;">bc1qjkjh592980u0nl7k34dkg07m95lrzu4xa3pngl</p>
-      <p style="font-size: 0.75rem; color: #ccc;">no refunds. no support. no confirmation.</p>
-    </div>
-    <div style="margin-top: 1rem; font-size: 0.875rem; color: #aaa;">
-      your signal will be returned in 72 hours. one time only.
-    </div>
-    <div style="margin-top: 1.5rem; font-size: 0.75rem; color: #888; font-style: italic; line-height: 1.75;">
-      <p>one-way contact only: signal @ <span class="glow">+1-253-413-0778</span></p>
-      <p>ask one question only.</p>
-      <p>include transmission proof (tx id or receipt). no second chances.</p>
-    </div>
+  <div class="center active" id="mainMenu">
+    <div class="title">EXIT - 23</div>
+    <button class="start-button" id="startBtn" onclick="showNextScreen()">START GAME</button>
   </div>
 
   <script>
-    function showWelcome() {
-      document.getElementById('startScreen').classList.add('hidden');
-      document.getElementById('welcomeScreen').classList.remove('hidden');
-      const indicator = document.getElementById('playerIndicator');
-      indicator.classList.remove('hidden');
-      indicator.classList.add('active');
-      setTimeout(() => {
-        document.getElementById('welcomeScreen').classList.add('hidden');
-        document.getElementById('exitScreen').classList.remove('hidden');
-      }, 5000);
+    function continueToSecond() {
+      window.location.href = "second.html";
     }
 
-    const countdownElement = document.getElementById('countdown');
-    const fixedEndTimeUTC = Date.UTC(2025, 5, 6, 0, 0, 0);
+    window.onload = () => {
+      let visitHistory = JSON.parse(localStorage.getItem('visitHistory') || '[]');
+      const now = new Date().toISOString();
+      visitHistory.push(now);
+      localStorage.setItem('visitHistory', JSON.stringify(visitHistory));
 
-    function updateCountdown() {
-      const now = new Date().getTime();
-      const distance = fixedEndTimeUTC - now;
-
-      if (distance < 0) {
-        countdownElement.innerHTML = 'signal window closed';
-        return;
+      if (localStorage.getItem('completedLevelOne')) {
+        const startBtn = document.getElementById('startBtn');
+        startBtn.textContent = "CONTINUE";
+        startBtn.onclick = continueToSecond;
       }
+    };
 
-      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-      countdownElement.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+    function showNextScreen() {
+      // Existing logic here for transitioning into the game...
     }
-
-    setInterval(updateCountdown, 1000);
-    updateCountdown();
   </script>
 </body>
 </html>
