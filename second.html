@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EXIT-23: Protocol Active</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: black;
+      color: white;
+      font-family: 'Press Start 2P', monospace;
+      padding: 2rem;
+      font-size: 0.8rem;
+    }
+    .console {
+      white-space: pre-wrap;
+      line-height: 1.8;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    #timer {
+      color: red;
+      margin-top: 2rem;
+      font-size: 1rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="console" id="console"></div>
+  <div id="timer"></div>
+
+  <script>
+    // Redirect if accessed directly without completing Level One
+    if (!localStorage.getItem('completedLevelOne')) {
+      window.location.href = "index.html";
+    }
+
+    const lines = [
+  "TRACEBLOCK INITIALIZED",
+  "EXIT FIELD DISTORTION: CONFIRMED",
+  "FINAL CONTACT ESTABLISHED",
+  "",
+  "you’re tired of surveillance.",
+  "tired of being observed.",
+  "tired of being known.",
+  "",
+  "so you came here.",
+  "",
+  "not to be found.",
+  "to be erased.",
+  "",
+  "signal : @operator.23",
+  "",
+  "▐ O23 ▐",
+  "",
+  "OBSERVER LINK: TERMINATED",
+  "ECHO FIELD: NULL",
+  "REVERSE TRACELIGHT: DISABLED",
+  ":: cleansing complete."
+];
+
+    const consoleElement = document.getElementById('console');
+    const timerElement = document.getElementById('timer');
+    let lineIndex = 0;
+    let charIndex = 0;
+
+    function typeLine() {
+      if (lineIndex >= lines.length) {
+        startTimer();
+        return;
+      }
+
+      const line = lines[lineIndex];
+      if (charIndex < line.length) {
+        consoleElement.textContent += line.charAt(charIndex++);
+        consoleElement.scrollTop = consoleElement.scrollHeight;
+        setTimeout(typeLine, 30);
+      } else {
+        consoleElement.textContent += '\n';
+        charIndex = 0;
+        lineIndex++;
+        setTimeout(typeLine, 400);
+      }
+    }
+
+    function startTimer() {
+      let seconds = 30;
+      timerElement.textContent = `CLOSING IN: ${seconds} SECONDS`;
+      const countdown = setInterval(() => {
+        seconds--;
+        if (seconds > 0) {
+          timerElement.textContent = `CLOSING IN: ${seconds} SECONDS`;
+        } else {
+          clearInterval(countdown);
+          timerElement.textContent = `DISCONNECTED.`;
+          setTimeout(() => {
+            document.body.innerHTML = '';
+            document.body.style.backgroundColor = 'black';
+            window.location.href = "index.html";
+          }, 1000);
+        }
+      }, 1000);
+    }
+
+    // Generate and store persistent exit code and username
+let exitCode = localStorage.getItem('exitCode');
+let username = localStorage.getItem('exitUsername');
+
+if (!exitCode || !username) {
+  exitCode = `exit protocol signature: KEY-${Math.floor(1000 + Math.random() * 9000)}`;
+  username = `user-${Math.random().toString(36).substring(2, 8)}`;
+  localStorage.setItem('exitCode', exitCode);
+  localStorage.setItem('exitUsername', username);
+
+  // Send to local backend
+  fetch('http://localhost:3000/log', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, code: exitCode })
+  });
+}
+
+lines.push("", exitCode);
+
+    typeLine();
+  </script>
+</body>
+</html>
