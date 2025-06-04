@@ -79,6 +79,100 @@
     }
     .player-indicator.online .player-text { color: #4ade80; }
     .player-indicator.offline .player-text { color: #f87171; }
+    .init-text {
+      color: #4ade80;
+      font-size: 0.8rem;
+      text-align: left;
+      white-space: pre-line;
+      max-width: 80vw;
+    }
+    .typed-cursor {
+      display: inline-block;
+      width: 1ch;
+      background: #4ade80;
+      animation: blink 1s infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+    .level-text {
+      font-size: 4rem;
+      color: #4ade80;
+      text-shadow: 0 0 6px #4ade80, 0 0 12px #4ade80;
+      animation: glowPulse 2s infinite alternate;
+    }
+    @keyframes glowPulse {
+      from {
+        text-shadow: 0 0 4px #4ade80, 0 0 10px #4ade80;
+      }
+      to {
+        text-shadow: 0 0 10px #4ade80, 0 0 20px #4ade80;
+      }
+    }
+    .glow-box {
+      width: 60vw;
+      min-height: 220px;
+      border-radius: 20px;
+      border: 1px solid #4ade80;
+      background-color: #051606;
+      box-shadow: 0 0 10px #4ade80, 0 0 20px #4ade80;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2rem;
+      padding: 1rem;
+      position: relative;
+    }
+    .glow-text {
+      text-align: center;
+      white-space: pre-line;
+      margin-bottom: 2.5rem;
+      color: #4ade80;
+    }
+    .timer-display {
+      font-size: 1rem;
+      color: white;
+      position: absolute;
+      bottom: 1rem;
+      right: 1rem;
+    }
+    .button-row {
+      display: flex;
+      gap: 1rem;
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+    .button-row.visible {
+      opacity: 1;
+    }
+    .stay-button, .accept-button {
+      padding: 0.5rem 1.5rem;
+      border-radius: 8px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.7rem;
+      cursor: pointer;
+      background: none;
+    }
+    .stay-button {
+      border: 1px solid #f87171;
+      color: #f87171;
+      box-shadow: 0 0 8px #f87171, 0 0 16px #f87171;
+    }
+    .stay-button:hover {
+      background: #f87171;
+      color: black;
+    }
+    .accept-button {
+      border: 1px solid #4ade80;
+      color: #60a5fa;
+      box-shadow: 0 0 8px #60a5fa, 0 0 16px #60a5fa;
+    }
+    .accept-button:hover {
+      background: #60a5fa;
+      color: black;
+    }
   </style>
 </head>
 <body>
@@ -90,28 +184,166 @@
     <div class="title">EXIT - 23</div>
     <button class="start-button" id="startBtn" onclick="showNextScreen()">START GAME</button>
   </div>
+  <div class="next-screen" id="nextScreen">
+    <p class="level-text">LEVEL ONE</p>
+  </div>
+  <div class="init-screen" id="initScreen">
+    <div class="init-text" id="initText"></div>
+  </div>
+  <div class="blank-screen" id="blankScreen">
+    <div class="glow-box">
+      <div class="glow-text" id="glowText"></div>
+      <div class="timer-display" id="timerDisplay"></div>
+      <div class="button-row" id="buttonRow">
+        <button class="stay-button" onclick="staySequence()">STAY</button>
+        <button class="accept-button" onclick="exitSequence()">EXIT - 23</button>
+      </div>
+    </div>
+  </div>
+  <div class="stay-screen" id="stayScreen">
+    <div class="glow-box">
+      <div class="glow-text">> SIGNAL TRACE LOST
 
+> RETURN TO LOOP</div>
+    </div>
+  </div>
+  <div class="exit-screen" id="exitScreen">
+    <div class="glow-box">
+      <div class="glow-text" id="exitText"></div>
+    </div>
+  </div>
   <script>
-    function continueToSecond() {
-      window.location.href = "second.html";
+    const messages = ["level one initialized...", "calibrating signal..."];
+    let msgIndex = 0;
+    function typeNextMessage() {
+      const container = document.getElementById('initText');
+      if (msgIndex < messages.length) {
+        let text = messages[msgIndex];
+        let i = 0;
+        const span = document.createElement('div');
+        container.appendChild(span);
+        const interval = setInterval(() => {
+          span.textContent = text.substring(0, i + 1);
+          i++;
+          if (i >= text.length) {
+            clearInterval(interval);
+            msgIndex++;
+            setTimeout(typeNextMessage, 2000);
+          }
+        }, 100);
+      } else {
+        document.getElementById('initScreen').classList.remove('active');
+        document.getElementById('blankScreen').classList.add('active');
+        typeFinalMessage();
+      }
     }
+
+    const finalMessage = `> SIGNAL TRACE DETECTED\n\n> DELAY REGISTERED – CANDIDATE STABILITY: [ WEAKENING ]\n\n\nyou know why you're here.\n\n\nyou don't have much time.\n\n\n48 hours. your move.`;
+    const pauseMap = {
+      46: 2300,
+      75: 2300
+    };
+
+    function typeFinalMessage() {
+      const target = document.getElementById("glowText");
+      let i = 0;
+      function typeChar() {
+        target.textContent = finalMessage.substring(0, i + 1);
+        i++;
+        if (i >= finalMessage.length) {
+          document.getElementById("buttonRow").classList.add("visible");
+          startTimer();
+          return;
+        }
+        const delay = pauseMap[i] || 60;
+        setTimeout(typeChar, delay);
+      }
+      typeChar();
+    }
+
+    function showNextScreen() {
+      document.getElementById('mainMenu').classList.remove('active');
+      document.getElementById('startBtn').disabled = true;
+      document.getElementById('startBtn').classList.add('disabled');
+      const nextScreen = document.getElementById('nextScreen');
+      nextScreen.classList.add('active');
+      const status = document.getElementById('playerStatus');
+      status.classList.remove('offline');
+      status.classList.add('online');
+      status.querySelector('.player-text').textContent = 'online';
+      setTimeout(() => {
+        nextScreen.classList.remove('active');
+        const init = document.getElementById('initScreen');
+        init.classList.add('active');
+        typeNextMessage();
+      }, 2000);
+    }
+
+    function startTimer() {
+      const display = document.getElementById('timerDisplay');
+      let endTime = localStorage.getItem('timerEnd');
+      if (!endTime) {
+        endTime = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
+        localStorage.setItem('timerEnd', endTime);
+      }
+      function updateTimer() {
+        const now = new Date();
+        const end = new Date(endTime);
+        const diff = Math.max(0, end - now);
+        const hrs = Math.floor(diff / (1000 * 60 * 60));
+        const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const secs = Math.floor((diff % (1000 * 60)) / 1000);
+        display.textContent = `${hrs}h ${mins}m ${secs}s`;
+        if (diff <= 0) return;
+        setTimeout(updateTimer, 1000);
+      }
+      updateTimer();
+    }
+
+    function staySequence() {
+      document.getElementById('blankScreen').classList.remove('active');
+      document.getElementById('stayScreen').classList.add('active');
+      setTimeout(() => {
+        document.getElementById('stayScreen').classList.remove('active');
+        document.getElementById('mainMenu').classList.add('active');
+      }, 4000);
+    }
+
+    function exitSequence() {
+      document.getElementById('blankScreen').classList.remove('active');
+      document.getElementById('exitScreen').classList.add('active');
+      const status = document.getElementById('playerStatus');
+      status.classList.remove('online');
+      status.classList.add('offline');
+      status.querySelector('.player-text').textContent = 'off grid';
+      typeExitMessage();
+    }
+
+function typeExitMessage() {
+  const exitText = document.getElementById("exitText");
+  const message = "EXITING PROTOCOL...";
+  let i = 0;
+  function typeChar() {
+    exitText.textContent = message.substring(0, i + 1);
+    i++;
+    if (i < message.length) {
+      setTimeout(typeChar, 80);
+    } else {
+      // After message finishes typing, wait 2 seconds then redirect
+      setTimeout(() => {
+        window.location.href = "second.html"; // Change this to your next page
+      }, 2000);
+    }
+  }
+  typeChar();
+}
 
     window.onload = () => {
       let visitHistory = JSON.parse(localStorage.getItem('visitHistory') || '[]');
       const now = new Date().toISOString();
       visitHistory.push(now);
       localStorage.setItem('visitHistory', JSON.stringify(visitHistory));
-
-      if (localStorage.getItem('completedLevelOne')) {
-        const startBtn = document.getElementById('startBtn');
-        startBtn.textContent = "CONTINUE";
-        startBtn.onclick = continueToSecond;
-      }
     };
-
-    function showNextScreen() {
-      // Existing logic here for transitioning into the game...
-    }
   </script>
 </body>
 </html>
