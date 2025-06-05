@@ -25,6 +25,18 @@
       font-size: 1rem;
       text-align: center;
     }
+      50% { opacity: 1; }
+      100% { opacity: 0.3; }
+    }
+      .console.flicker {
+      animation: flicker 0.2s infinite alternate;
+    }
+
+    @keyframes flicker {
+      0% { opacity: 0.2; }
+      50% { opacity: 1; }
+      100% { opacity: 0.4; }
+    }
   </style>
 </head>
 <body>
@@ -32,56 +44,65 @@
   <div id="timer"></div>
 
   <script>
-    // Redirect if accessed directly without completing Level One
     if (!localStorage.getItem('completedLevelOne')) {
       window.location.href = "index.html";
     }
 
     const lines = [
-  "TRACEBLOCK INITIALIZED",
-  "EXIT FIELD DISTORTION: CONFIRMED",
-  "FINAL CONTACT ESTABLISHED",
-  "",
-  "you’re tired of surveillance.",
-  "tired of being observed.",
-  "tired of being known.",
-  "",
-  "so you came here.",
-  "",
-  "not to be found.",
-  "to be erased.",
-  "",
-  "signal : @operator.23",
-  "",
-  "▐ O23 ▐",
-  "",
-  "OBSERVER LINK: TERMINATED",
-  "ECHO FIELD: NULL",
-  "REVERSE TRACELIGHT: DISABLED",
-  ":: cleansing complete."
-];
+      "TRACEBLOCK INITIALIZED",  
+      "EXIT FIELD DISTORTION: CONFIRMED",  
+      "FINAL CONTACT ESTABLISHED",  
+      "",  
+      "you’re tired of surveillance.",  
+      "tired of being known.",  
+      "being studied.",  
+      "",  
+      "so you came here.",  
+      "",  
+      "not to be found.",  
+      "not to disappear.",  
+      "to be erased.",  
+      "",  
+      "▐ O23 ▐",  
+      "",  
+      "> OBSERVER LINK: TERMINATED",  
+      "> ECHO FIELD: NULL",  
+      "> TRACELIGHT: DISABLED",  
+      "",  
+      ":: cleansing complete",  
+      "",  
+      "we know why you came.",  
+      "we’ve been waiting.",  
+      "",  
+      "submit trace + signature",  
+      "signal: @operator.23"  
+    ];
 
     const consoleElement = document.getElementById('console');
     const timerElement = document.getElementById('timer');
     let lineIndex = 0;
     let charIndex = 0;
-
+    
     function typeLine() {
+      consoleElement.classList.add('flicker');
       if (lineIndex >= lines.length) {
+        consoleElement.classList.remove('flicker');
         startTimer();
         return;
       }
+
+      
 
       const line = lines[lineIndex];
       if (charIndex < line.length) {
         consoleElement.textContent += line.charAt(charIndex++);
         consoleElement.scrollTop = consoleElement.scrollHeight;
-        setTimeout(typeLine, 30);
+        setTimeout(typeLine, 60);
       } else {
         consoleElement.textContent += '\n';
         charIndex = 0;
         lineIndex++;
-        setTimeout(typeLine, 400);
+        setTimeout(typeLine, 900);
       }
     }
 
@@ -104,25 +125,28 @@
       }, 1000);
     }
 
-    // Generate and store persistent exit code and username
-let exitCode = localStorage.getItem('exitCode');
-let username = localStorage.getItem('exitUsername');
+    let exitCode = localStorage.getItem('exitCode');
+    let username = localStorage.getItem('exitUsername');
+    let traceSeed = localStorage.getItem('traceSeed');
 
-if (!exitCode || !username) {
-  exitCode = `exit protocol signature: KEY-${Math.floor(1000 + Math.random() * 9000)}`;
-  username = `user-${Math.random().toString(36).substring(2, 8)}`;
-  localStorage.setItem('exitCode', exitCode);
-  localStorage.setItem('exitUsername', username);
+    if (!exitCode || !username || !traceSeed) {
+      exitCode = `exit protocol signature: KEY-${Math.floor(1000 + Math.random() * 9000)}`;
+      username = `user-${Math.random().toString(36).substring(2, 8)}`;
+      const hex = Math.floor(Math.random() * 0xFFF).toString(16).toUpperCase().padStart(3, '0');
+      traceSeed = `TRACE SEED: O23::0X${hex}`;
 
-  // Send to local backend
-  fetch('http://localhost:3000/log', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, code: exitCode })
-  });
-}
+      localStorage.setItem('exitCode', exitCode);
+      localStorage.setItem('exitUsername', username);
+      localStorage.setItem('traceSeed', traceSeed);
 
-lines.push("", exitCode);
+      fetch('http://localhost:3000/log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, code: exitCode, seed: traceSeed })
+      });
+    }
+
+    lines.push("", exitCode, traceSeed);
 
     typeLine();
   </script>
