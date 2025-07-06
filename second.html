@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>EXIT-23: Protocol Active</title>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
   <style>
     body {
       background-color: black;
@@ -25,18 +25,6 @@
       font-size: 1rem;
       text-align: center;
     }
-      50% { opacity: 1; }
-      100% { opacity: 0.3; }
-    }
-      .console.flicker {
-      animation: flicker 0.2s infinite alternate;
-    }
-
-    @keyframes flicker {
-      0% { opacity: 0.2; }
-      50% { opacity: 1; }
-      100% { opacity: 0.4; }
-    }
   </style>
 </head>
 <body>
@@ -48,58 +36,68 @@
       window.location.href = "index.html";
     }
 
+    const btcAddress = "bc1qjkjh592980u0nl7k34dkg07m95lrzu4xa3pngl";
+
+    // Lines without glitch class
     const lines = [
-      "TRACEBLOCK INITIALIZED",  
-      "EXIT FIELD DISTORTION: CONFIRMED",  
-      "FINAL CONTACT ESTABLISHED",  
-      "",  
-      "you’re tired of surveillance.",  
-      "tired of being known.",  
-      "being studied.",  
-      "",  
-      "you came here.",  
-      "",  
-      "not to be found.",  
-      "not to disappear.",  
-      "to be erased.",  
-      "",  
-      "▐ O23 ▐",  
-      "",  
-      "> OBSERVER LINK: TERMINATED",  
-      "> ECHO FIELD: NULL",  
-      "> TRACELIGHT: DISABLED",  
-      "",  
-      ":: cleansing complete",  
-      "",  
-      "we know why you came.",  
-      "we’ve been waiting.",  
-      "",  
-      "submit trace + signature",  
-      "signal: @operator.23"  
+      { text: "TRACEBLOCK INITIALIZED" },
+      { text: "EXIT FIELD DISTORTION: CONFIRMED" },
+      { text: "FINAL CONTACT ESTABLISHED" },
+      { text: "" },
+      { text: "you’re tired of surveillance." },
+      { text: "tired of being known." },
+      { text: "being studied." },
+      { text: "" },
+      { text: "you came here." },
+      { text: "" },
+      { text: "not to be found." },
+      { text: "not to disappear." },
+      { text: "to erase what was never real." },
+      { text: "" },
+      { text: "▐ O23 ▐" },
+      { text: "" },
+      { text: "> OBSERVER LINK: TERMINATED" },
+      { text: "> ECHO FIELD: NULL" },
+      { text: "> TRACELIGHT: DISABLED" },
+      { text: "" },
+      { text: ":: cleansing complete" },
+      { text: "" },
+      { text: "we know why you came." },
+      { text: "we’ve been waiting." },
+      { text: "" },
+      { text: "you felt the breach." },
+      { text: "you recognize the power." },
+      { text: "send 1 BTC to play the game." },
+      { text: `${btcAddress}` },
+      { text: "" }
     ];
 
     const consoleElement = document.getElementById('console');
     const timerElement = document.getElementById('timer');
     let lineIndex = 0;
     let charIndex = 0;
-    
+
     function typeLine() {
-      consoleElement.classList.add('flicker');
       if (lineIndex >= lines.length) {
-        consoleElement.classList.remove('flicker');
         startTimer();
         return;
       }
 
-      
+      const currentLine = lines[lineIndex];
 
-      const line = lines[lineIndex];
-      if (charIndex < line.length) {
-        consoleElement.textContent += line.charAt(charIndex++);
+      if (charIndex === 0) {
+        const lineSpan = document.createElement('span');
+        consoleElement.appendChild(lineSpan);
+      }
+
+      const lineSpan = consoleElement.lastChild;
+
+      if (charIndex < currentLine.text.length) {
+        lineSpan.textContent += currentLine.text.charAt(charIndex++);
         consoleElement.scrollTop = consoleElement.scrollHeight;
         setTimeout(typeLine, 60);
       } else {
-        consoleElement.textContent += '\n';
+        consoleElement.appendChild(document.createTextNode('\n'));
         charIndex = 0;
         lineIndex++;
         setTimeout(typeLine, 900);
@@ -124,29 +122,6 @@
         }
       }, 1000);
     }
-
-    let exitCode = localStorage.getItem('exitCode');
-    let username = localStorage.getItem('exitUsername');
-    let traceSeed = localStorage.getItem('traceSeed');
-
-    if (!exitCode || !username || !traceSeed) {
-      exitCode = `exit protocol signature: KEY-${Math.floor(1000 + Math.random() * 9000)}`;
-      username = `user-${Math.random().toString(36).substring(2, 8)}`;
-      const hex = Math.floor(Math.random() * 0xFFF).toString(16).toUpperCase().padStart(3, '0');
-      traceSeed = `TRACE SEED: O23::0X${hex}`;
-
-      localStorage.setItem('exitCode', exitCode);
-      localStorage.setItem('exitUsername', username);
-      localStorage.setItem('traceSeed', traceSeed);
-
-      fetch('http://localhost:3000/log', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, code: exitCode, seed: traceSeed })
-      });
-    }
-
-    lines.push("", exitCode, traceSeed);
 
     typeLine();
   </script>
