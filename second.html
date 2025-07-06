@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EXIT-23: Protocol Active</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: black;
+      color: #4ade80;
+      font-family: 'Press Start 2P', monospace;
+      padding: 2rem;
+      font-size: 0.5rem;
+    }
+    .console {
+      white-space: pre-wrap;
+      line-height: 1.8;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    #timer {
+      color: red;
+      margin-top: 2rem;
+      font-size: 1rem;
+      text-align: center;
+    }
+      50% { opacity: 1; }
+      100% { opacity: 0.3; }
+    }
+      .console.flicker {
+      animation: flicker 0.2s infinite alternate;
+    }
+
+    @keyframes flicker {
+      0% { opacity: 0.2; }
+      50% { opacity: 1; }
+      100% { opacity: 0.4; }
+    }
+  </style>
+</head>
+<body>
+  <div class="console" id="console"></div>
+  <div id="timer"></div>
+
+  <script>
+    if (!localStorage.getItem('completedLevelOne')) {
+      window.location.href = "index.html";
+    }
+
+    const lines = [
+      "TRACEBLOCK INITIALIZED",  
+      "EXIT FIELD DISTORTION: CONFIRMED",  
+      "FINAL CONTACT ESTABLISHED",  
+      "",  
+      "you’re tired of surveillance.",  
+      "tired of being known.",  
+      "being studied.",  
+      "",  
+      "you came here.",  
+      "",  
+      "not to be found.",  
+      "not to disappear.",  
+      "to be erased.",  
+      "",  
+      "▐ O23 ▐",  
+      "",  
+      "> OBSERVER LINK: TERMINATED",  
+      "> ECHO FIELD: NULL",  
+      "> TRACELIGHT: DISABLED",  
+      "",  
+      ":: cleansing complete",  
+      "",  
+      "we know why you came.",  
+      "we’ve been waiting.",  
+      "",  
+      "submit trace + signature",  
+      "signal: @operator.23"  
+    ];
+
+    const consoleElement = document.getElementById('console');
+    const timerElement = document.getElementById('timer');
+    let lineIndex = 0;
+    let charIndex = 0;
+    
+    function typeLine() {
+      consoleElement.classList.add('flicker');
+      if (lineIndex >= lines.length) {
+        consoleElement.classList.remove('flicker');
+        startTimer();
+        return;
+      }
+
+      
+
+      const line = lines[lineIndex];
+      if (charIndex < line.length) {
+        consoleElement.textContent += line.charAt(charIndex++);
+        consoleElement.scrollTop = consoleElement.scrollHeight;
+        setTimeout(typeLine, 60);
+      } else {
+        consoleElement.textContent += '\n';
+        charIndex = 0;
+        lineIndex++;
+        setTimeout(typeLine, 900);
+      }
+    }
+
+    function startTimer() {
+      let seconds = 30;
+      timerElement.textContent = `CLOSING IN: ${seconds} SECONDS`;
+      const countdown = setInterval(() => {
+        seconds--;
+        if (seconds > 0) {
+          timerElement.textContent = `CLOSING IN: ${seconds} SECONDS`;
+        } else {
+          clearInterval(countdown);
+          timerElement.textContent = `DISCONNECTED.`;
+          setTimeout(() => {
+            document.body.innerHTML = '';
+            document.body.style.backgroundColor = 'black';
+            window.location.href = "index.html";
+          }, 1000);
+        }
+      }, 1000);
+    }
+
+    let exitCode = localStorage.getItem('exitCode');
+    let username = localStorage.getItem('exitUsername');
+    let traceSeed = localStorage.getItem('traceSeed');
+
+    if (!exitCode || !username || !traceSeed) {
+      exitCode = `exit protocol signature: KEY-${Math.floor(1000 + Math.random() * 9000)}`;
+      username = `user-${Math.random().toString(36).substring(2, 8)}`;
+      const hex = Math.floor(Math.random() * 0xFFF).toString(16).toUpperCase().padStart(3, '0');
+      traceSeed = `TRACE SEED: O23::0X${hex}`;
+
+      localStorage.setItem('exitCode', exitCode);
+      localStorage.setItem('exitUsername', username);
+      localStorage.setItem('traceSeed', traceSeed);
+
+      fetch('http://localhost:3000/log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, code: exitCode, seed: traceSeed })
+      });
+    }
+
+    lines.push("", exitCode, traceSeed);
+
+    typeLine();
+  </script>
+</body>
+</html>
